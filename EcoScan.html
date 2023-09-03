@@ -1,0 +1,170 @@
+<html>
+    <head>
+        <title>EcoScan - Scan!</title>
+        <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+        <link rel="icon" type="image/x-icon" href="./static/Eco Scan Logo.png">
+        <style>
+            .hover {
+               position: absolute;
+               z-index: 2;
+               transform: translate(-50%,-50%);
+            }
+            @font-face {
+				      font-family: 'Poppins';
+				      src: url("./static/Poppins.TTF");
+			      }
+            h1 {
+               color: black;
+               font-size: 50px;
+            }
+            li {
+               font-size: 20px;
+               margin: 2% 30%;
+            }
+            .btn {
+              border: 2px solid;
+              color:#3e721d;
+              border-color: black;
+              padding:20px;
+              border-radius:8px;
+              background-color:#d1e6d3;
+              font-family:'Poppins';
+              font-size: 20px;
+              transition-duration: 0.5s;
+              cursor:  none;
+            }
+            .btn:hover {
+              background-color: #77B255;
+              color:#d1e6d3;
+              border-color: black;
+              cursor: pointer;
+            }
+            .btn:disabled {
+              opacity: 0.75;
+              background-color: gray;
+              color: white;
+            }
+            .btn:disabled:hover {
+              cursor: auto;
+            }
+        </style>
+    </head>
+    <body style="margin: 0 0; font-family: 'Poppins';">
+        <noscript>
+            You need to enable JavaScript to run this app.
+        </noscript>
+        <center>
+            <img src="./static/Scan bg.png" width="100%" height="50%" style="position: relative;">
+            <div style="width:100%; height: 50%; top: 0%; transform: translate(0%, 0%);" class="hover">
+              <img class="hover" src="./static/Eco Scan Logo.png" style="transform: translate(0%, 0%); top: 4%; left: 2%; width:7%;">
+              <button onclick="location.href='./index.html'" class="btn hover" style="transform: translate(-100%, 0%); top: 4%; left: 98%; font-size: 30px; white-space: nowrap;">Back</button>
+              <h1 class="hover" style="margin: 0 0; padding: 3%; background-color: #afd1bc; top:50%; left:50%; color: white; font-size: 35px;">EcoScan is the way to go, making recycling easy, don't you know!</h1>
+           </div>
+           <div style="background-color: #f7f7f7;">
+           <br>
+           <br>
+           <br>
+           <h1 style="margin: 0 0; color:black; font-size: 35px;">Instructions</h1>
+           <strong>
+            <div style="text-align:center;">
+            <ol style="text-align:left; display: inline-block;">
+              <li>Capture the Item: Begin by pressing "Start Scanning." It will propmpt you to allow access to your camera.  Click on allow access to activate the scanner.</li>
+              <li>Position the Item: Hold the item you want to check for recyclability in front of your device's camera. Make sure the object is well-lit and positioned clearly within the frame.</li>
+              <li>Take a Photo: Press the capture button to take a clear photograph of the item. Try to capture as much detail as possible.</li>
+              <li>Image Processing: EcoScan's powerful image recognition technology will process the photo you took, analyzing the object's shape, colors, and other visual cues.</li>
+              <li>Result Display: Within seconds, EcoScan will provide you with a result on the screen. It will indicate whether the item is recyclable or not. If recyclable, it might even offer specific recycling instructions, such as which bin to use or any additional steps needed. </li>
+            </ol>
+            </div>
+            <br>
+            <h1 style="margin: 0 0; padding: 3%; color:black; font-size: 35px;">~ Happy Scanning! ~</h1>
+            <br>
+            <img src="./static/phone icon.png" width="10%">
+            <br><br>
+           </strong>
+           </div>
+           <br>
+           <br>
+            <div id="objDetect" style="width: 100%; position: relative; height: 480;">
+                <button class="btn hover" style="top:50%; left: calc(50% - 340px);transform: translate(-100%,-50%);" id="start-camera">Start Scanning!</button>
+                <video id="video" class="hover" style="z-index:3;top: 50%; left: 50%; " width="640" height="480" autoplay style="border: 2px solid black;"></video>
+                <button class="btn hover"  style="top:25%; left: calc(50% + 340px);transform: translate(0%,-50%);" disabled id="click-photo">Click Photo</button>
+                <button class="btn hover" style="top:75%; left: calc(50% + 340px);transform: translate(0%,-50%);" disabled id="btn">Detect objects</button>
+                <canvas id="canvas" class="hover" style="z-index:-1;top:50%; left:50%; border: 2px solid black;" width="640" height="480"></canvas>
+            </div>
+            <br>
+            <br>
+        </center>
+        <script type="text/javascript" src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.14.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@0.1.1"></script>
+        <script>
+let camera_button = document.querySelector("#start-camera");
+let detect_button = document.querySelector("#btn");
+let video = document.querySelector("#video");
+let click_button = document.querySelector("#click-photo");
+let canvas = document.querySelector("#canvas");
+let ctx = canvas.getContext('2d')
+let model;
+let image_data_url;
+
+camera_button.addEventListener('click', async function() {
+   	let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+	video.srcObject = stream;
+  canvas.style["z-index"] = -1;
+    click_button.disabled = false;
+});
+
+click_button.addEventListener('click', function() {
+   	ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.style["z-index"] = 4;
+    image_data_url = new Image();
+   	image_data_url.src = canvas.toDataURL('image');
+    detect_button.disabled = false;
+   	// data url of the image
+   	console.log(image_data_url);
+});
+
+const randomColor = () => `hsl(${~~(360 * Math.random())}, 100%, 40%)`;
+
+const drawResult = ([x, y, w, h], label, confidence) => {
+  if (label === "person") {
+    return;
+  }
+  const colour = randomColor();
+  const text = `${label}`
+  ctx.beginPath();
+  ctx.font = '12px Arial';
+  ctx.strokeStyle = colour;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+  ctx.fillStyle = colour;
+  const textSize = ctx.measureText(text).width;
+  ctx.rect(x + 1, y - 20, textSize + 12, 20);
+  ctx.fill();
+  ctx.fillStyle = 'white';
+  ctx.fillText(text, x + 5, y - 5);
+  ctx.closePath();
+};
+
+
+function drawResults(predictions) {
+  console.log(predictions)
+  predictions.map (
+    p => drawResult(p.bbox, p.class, p.score)
+  )
+}
+
+function detectObjects () {
+    cocoSsd.load().then(model => {
+    // detect objects in the image.
+        model.detect(image_data_url).then(predictions => {
+            drawResults(predictions);
+
+        });
+    });
+}
+
+detect_button.addEventListener('click',detectObjects);
+        </script>
+    </body>
+</html>
