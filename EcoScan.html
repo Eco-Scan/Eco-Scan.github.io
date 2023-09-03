@@ -115,13 +115,18 @@ camera_button.addEventListener('click', async function() {
 });
 
 click_button.addEventListener('click', function() {
-   	ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.style["z-index"] = 4;
-    image_data_url = new Image();
-   	image_data_url.src = canvas.toDataURL('image');
-    detect_button.disabled = false;
-   	// data url of the image
-   	console.log(image_data_url);
+  if (click_button.innerHTML != "Clear") {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.style["z-index"] = 4;
+      click_button.innerHTML = "Clear";
+      image_data_url = new Image();
+      image_data_url.src = canvas.toDataURL('image');
+      detect_button.disabled = false;
+      // data url of the image
+      console.log(image_data_url);
+  } else {
+    canvas.style["z-index"] = -1;
+  }
 });
 
 const randomColor = () => `hsl(${~~(360 * Math.random())}, 100%, 40%)`;
