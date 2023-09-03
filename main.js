@@ -43,6 +43,7 @@ document.getElementById("train").addEventListener('click', function(event) {
 function loadImage(src) {  
   return new Promise((resolve, reject) => {    
       const img = new Image();
+	img.crossOrigin = "anonymous";
       img.src = src;    
       img.onload = () => resolve(tf.browser.fromPixels(img));    
       img.onerror = (err) => reject(err);  
