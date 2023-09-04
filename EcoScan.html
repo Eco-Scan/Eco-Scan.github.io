@@ -112,9 +112,6 @@ async function init() {
   model = await tmImage.load(modelURL, metadataURL);
   maxPredictions = model.getTotalClasses();
   labelContainer = document.getElementById("label-container");
-  for (let i = 0; i < maxPredictions; i++) { // and class labels
-      labelContainer.appendChild(document.createElement("div"));
-  }
 
 }
 init();
@@ -142,7 +139,6 @@ click_button.addEventListener('click', function() {
       image_data_url.src = canvas.toDataURL('image');
       detect_button.disabled = false;
       // data url of the image
-      console.log(image_data_url);
   } else {
     canvas.style["z-index"] = -1;
     click_button.innerHTML = "Click Photo";
@@ -155,11 +151,18 @@ function detectObjects () {
 }
 async function predict() {
   // predict can take in an image, video or canvas html element
-  const prediction = await model.predict(image_data_url);
+  var prediction = await model.predict(image_data_url);
+  var max = [0,0];
   for (let i = 0; i < maxPredictions; i++) {
-      const classPrediction =
-          prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-      labelContainer.childNodes[i].innerHTML = classPrediction;
+      var classPrediction = prediction[i].probability.toFixed(2);
+      if (classPrediction > max[1]) {
+        max = [i, classPrediction]
+      }
+  }
+  if (prediction[max[0]].className === "trash") {
+    labelContainer.innerHTML = "This looks like trash with " + max[1]*100 + "% certainty. This is not recyclable :(";
+  } else {
+    labelContainer.innerHTML = "This looks like " + prediction[max[0]].className + " with " + max[1]*100 + "% certainty. This is recyclable!";
   }
 }
 
