@@ -150,9 +150,9 @@ click_button.addEventListener('click', function() {
 function detectObjects () {
   predict();
 }
-async function predict() {
+function predict() {
   // predict can take in an image, video or canvas html element
-  var prediction = await model.predict(image_data_url);
+  var prediction = model.predict(image_data_url);
   var max = [0,0];
   for (let i = 0; i < maxPredictions; i++) {
       var classPrediction = prediction[i].probability.toFixed(2);
@@ -161,9 +161,9 @@ async function predict() {
       }
   }
   if (prediction[max[0]].className === "trash") {
-    labelContainer.innerHTML = "This looks like trash. This is not recyclable :(";
+    labelContainer.innerHTML = "This looks like trash with " + max[1]*100 + "% certainty. This is not recyclable :(";
   } else {
-    labelContainer.innerHTML = "This looks like " + prediction[max[0]].className + ". This is recyclable!";
+    labelContainer.innerHTML = "This looks like " + prediction[max[0]].className + " with " + max[1]*100 + "% certainty. This is recyclable!";
   }
 }
 
