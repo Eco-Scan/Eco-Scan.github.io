@@ -161,9 +161,9 @@ async function predict() {
       }
   }
   if (prediction[max[0]].className === "trash") {
-    labelContainer.innerHTML = "This looks like trash with " + max[1]*100 + "% certainty. This is not recyclable :(";
+    labelContainer.innerHTML = "This looks like trash. This is not recyclable :(";
   } else {
-    labelContainer.innerHTML = "This looks like " + prediction[max[0]].className + " with " + max[1]*100 + "% certainty. This is recyclable!";
+    labelContainer.innerHTML = "This looks like " + prediction[max[0]].className + ". This is recyclable!";
   }
 }
 
