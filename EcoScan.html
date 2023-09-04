@@ -11,7 +11,7 @@
             }
             @font-face {
 				      font-family: 'Poppins';
-				      src: url("./static/Poppins.ttf");
+				      src: url("./static/Poppins.TTF");
 			      }
             h1 {
                color: black;
@@ -54,7 +54,7 @@
             You need to enable JavaScript to run this app.
         </noscript>
         <center>
-            <img src="./static/Scan Bg.png" width="100%" height="50%" style="position: relative;">
+            <img src="./static/Scan bg.png" width="100%" height="50%" style="position: relative;">
             <div style="width:100%; height: 50%; top: 0%; transform: translate(0%, 0%);" class="hover">
               <img class="hover" src="./static/Eco Scan Logo.png" style="transform: translate(0%, 0%); top: 4%; left: 2%; width:7%;">
               <button onclick="location.href='./index.html'" class="btn hover" style="transform: translate(-100%, 0%); top: 4%; left: 98%; font-size: 30px; white-space: nowrap;">Back</button>
@@ -91,20 +91,38 @@
                 <button class="btn hover" style="top:75%; left: calc(50% + 340px);transform: translate(0%,-50%);" disabled id="btn">Detect objects</button>
                 <canvas id="canvas" class="hover" style="z-index:-1;top:50%; left:50%; border: 2px solid black;" width="640" height="480"></canvas>
             </div>
+            <div id="label-container"></div>
             <br>
             <br>
         </center>
-        <script type="text/javascript" src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.14.0"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@0.1.1"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
         <script>
+let model, labelContainer, maxPredictions;
+const URL = "./my_model/";
+
+async function init() {
+  const modelURL = URL + "model.json";
+  const metadataURL = URL + "metadata.json";
+
+  // load the model and metadata
+  // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+  // or files from your local hard drive
+  // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+  model = await tmImage.load(modelURL, metadataURL);
+  maxPredictions = model.getTotalClasses();
+  labelContainer = document.getElementById("label-container");
+  for (let i = 0; i < maxPredictions; i++) { // and class labels
+      labelContainer.appendChild(document.createElement("div"));
+  }
+
+}
 let camera_button = document.querySelector("#start-camera");
 let detect_button = document.querySelector("#btn");
 let video = document.querySelector("#video");
 let click_button = document.querySelector("#click-photo");
 let canvas = document.querySelector("#canvas");
 let ctx = canvas.getContext('2d')
-let model;
 let image_data_url;
 
 camera_button.addEventListener('click', async function() {
@@ -131,44 +149,17 @@ click_button.addEventListener('click', function() {
   }
 });
 
-const randomColor = () => `hsl(${~~(360 * Math.random())}, 100%, 40%)`;
-
-const drawResult = ([x, y, w, h], label, confidence) => {
-  if (label === "person") {
-    return;
-  }
-  const colour = randomColor();
-  const text = `${label}`
-  ctx.beginPath();
-  ctx.font = '12px Arial';
-  ctx.strokeStyle = colour;
-  ctx.lineWidth = 2;
-  ctx.strokeRect(x, y, w, h);
-  ctx.fillStyle = colour;
-  const textSize = ctx.measureText(text).width;
-  ctx.rect(x + 1, y - 20, textSize + 12, 20);
-  ctx.fill();
-  ctx.fillStyle = 'white';
-  ctx.fillText(text, x + 5, y - 5);
-  ctx.closePath();
-};
-
-
-function drawResults(predictions) {
-  console.log(predictions)
-  predictions.map (
-    p => drawResult(p.bbox, p.class, p.score)
-  )
-}
-
 function detectObjects () {
-    cocoSsd.load().then(model => {
-    // detect objects in the image.
-        model.detect(image_data_url).then(predictions => {
-            drawResults(predictions);
-
-        });
-    });
+  predict();
+}
+async function predict() {
+  // predict can take in an image, video or canvas html element
+  const prediction = await model.predict(webcam.canvas);
+  for (let i = 0; i < maxPredictions; i++) {
+      const classPrediction =
+          prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+      labelContainer.childNodes[i].innerHTML = classPrediction;
+  }
 }
 
 detect_button.addEventListener('click',detectObjects);
