@@ -41,8 +41,8 @@
         <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     </head>
     <body style="margin: 0 0;font-family: 'Poppins'; position: relative;">
-        <img src="./static/EcoScan bg.jpg" width="100%" height="50%" style="position: relative;">
-        <div style="width:100%; height: 50%; top: 0%; transform: translate(0%, 0%);" class="hover">
+        <img src="./static/EcoScan bg.jpg" width="100%" id="img" height="50%" style="position: relative;">
+        <div style="width:100%; top: 0%; transform: translate(0%, 0%);" id="home" class="hover">
             <img class="hover" src="./static/Eco Scan Logo.png" style="transform: translate(0%, 0%); top: 4%; left: 2%; width:7%;">
             <button onclick="location.href='./EcoScan.html'" class="btn hover" style="transform: translate(-100%, 0%); top: 4%; left: 98%; white-space: nowrap;">Take me to it!</button>
             <h2 class="hover" style="text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000, 1px 1px 0 #000; margin: 0 0; color: white; top:50%;left:50%;">Do your part to combat pollution with:</h2>
@@ -51,6 +51,28 @@
          <center>
             <h1 style="color: black;">Our goal is to create a clean and healthy<br>environment</h1>
             <em><p style="margin: 3% 10%;">EcoScan is a revolutionary  website designed to determine the recyclability of various items. This innovative tool employs advanced image recognition technology to analyze photographs of objects, instantly identifying their materials and providing users with information on whether the item can be recycled or not. EcoScan's significance lies in its ability to empower individuals to make more informed and environmentally responsible choices. By promoting recycling awareness and reducing contamination in recycling streams, it contributes to the global effort to minimize waste, conserve resources, and mitigate the impact of consumer goods on our planet's ecosystems. EcoScan serves as a valuable tool in the ongoing sustainability movement, fostering a greener and more eco-conscious society.</p></em>
-         </center>
+         <br>
+         <div style="width: 100%; display: flex;">
+            <div style="width: 50%; position: relative;">
+               <div class="hover" style="top:50%; left:50%; width: 100%;">
+                  <h2 style="font-size: 40px; margin: 0 0;"> Take Action</h2>
+                  <br>
+                  <em><p style="margin: 0% 10%;">Join the eco-conscious movement and take a step toward a greener future. Use EcoScan today and make a positive impact on our planet. It's the smart and simple way to contribute to a sustainable world. Start scanning now!</p></em>
+                  <br>
+                  <button class="btn" style="font-size:20px; white-space: nowrap;" onclick="location.href='./EcoScan.html'">Take Action</button>
+               </div>
+            </div>
+            <div style="width: 50%;">
+               <img src="./static/Collage.jpg" width="100%">
+            </div>
+         </div>
+         <br>
+      </center>
+      <script>
+         var home = document.getElementById("home");
+         var img = document.getElementById("img");
+         home.style.height = img.clientHeight/document.documentElement.scrollHeight * 100 + "%";
+         console.log(home.style.height);
+      </script>
     </body>
 </html>
