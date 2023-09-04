@@ -150,9 +150,9 @@ click_button.addEventListener('click', function() {
 function detectObjects () {
   predict();
 }
-function predict() {
+async function predict() {
   // predict can take in an image, video or canvas html element
-  var prediction = model.predict(image_data_url);
+  var prediction = await model.predict(image_data_url);
   var max = [0,0];
   for (let i = 0; i < maxPredictions; i++) {
       var classPrediction = prediction[i].probability.toFixed(2);
